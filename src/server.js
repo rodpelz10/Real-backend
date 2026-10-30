@@ -54,8 +54,8 @@ async function ensureAdminAccount() {
 async function start() {
   await connectDB();
   await ensureAdminAccount();
-  app.listen(PORT, () => {
-    console.log(`Food Delivery API listening on http://localhost:${PORT}`);
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Food Delivery API listening on port ${PORT}`);
   });
 }
 
