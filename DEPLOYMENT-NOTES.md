@@ -29,4 +29,6 @@ If you have more than one frontend origin, set `CLIENT_ORIGIN` to a comma-separa
 2. Set `MONGODB_URI`, `JWT_SECRET`, and any required AI/admin values.
 3. Run `npm install` and `npm run dev` from this backend folder.
 
-Health check: `/api/health`
+Root URL: `/` returns a basic API status response.
+
+Health check: `/api/health` returns HTTP 200 when MongoDB is connected and HTTP 503 when it is not.

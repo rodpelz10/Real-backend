@@ -42,10 +42,33 @@ app.use(cors({
 }));
 app.use(express.json({ limit: "1mb" }));
 
-app.get("/api/health", (_req, res) => {
+// Friendly response for the Render service root URL (GET /).
+// This prevents the generic "Route not found: GET /" response when
+// opening the backend URL in a browser.
+app.get("/", (_req, res) => {
   res.status(200).json({
     success: true,
     message: "Food Delivery API is running",
+    endpoints: {
+      health: "/api/health",
+      authentication: "/api/auth",
+      foods: "/api/foods",
+      recommendations: "/api/ai",
+      orders: "/api/orders"
+    }
+  });
+});
+
+// Health endpoint reports whether the app is connected to MongoDB Atlas.
+app.get("/api/health", (_req, res) => {
+  const mongoose = require("mongoose");
+  const databaseConnected = mongoose.connection.readyState === 1;
+  res.status(databaseConnected ? 200 : 503).json({
+    success: databaseConnected,
+    message: databaseConnected
+      ? "Food Delivery API is running and connected to MongoDB"
+      : "Food Delivery API is running but MongoDB is not connected",
+    database: databaseConnected ? "connected" : "disconnected",
     timestamp: new Date().toISOString()
   });
 });
