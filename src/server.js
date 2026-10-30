@@ -13,9 +13,32 @@ const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const isProduction = process.env.NODE_ENV === "production";
+
+// Set CLIENT_ORIGIN to your deployed frontend URL in Render.
+// Multiple frontend origins may be separated with commas.
+const configuredOrigins = (process.env.CLIENT_ORIGIN || "")
+  .split(",")
+  .map((origin) => origin.trim().replace(/\/$/, ""))
+  .filter(Boolean);
+
+const allowedOrigins = new Set(configuredOrigins);
+if (!isProduction) {
+  allowedOrigins.add("http://localhost:5173");
+}
+
+if (isProduction && allowedOrigins.size === 0) {
+  console.warn("CLIENT_ORIGIN is not configured. Browser requests will be blocked by CORS until it is set.");
+}
 
 app.use(cors({
-  origin: process.env.CLIENT_ORIGIN || "http://localhost:5173"
+  origin(origin, callback) {
+    // Requests without an Origin header (for example, server-to-server health checks) are allowed.
+    if (!origin || allowedOrigins.has(origin.replace(/\/$/, ""))) {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS blocked request from origin: ${origin}`));
+  }
 }));
 app.use(express.json({ limit: "1mb" }));
 
@@ -54,7 +77,7 @@ async function ensureAdminAccount() {
 async function start() {
   await connectDB();
   await ensureAdminAccount();
-  app.listen(PORT, "0.0.0.0", () => {
+  app.listen(PORT, () => {
     console.log(`Food Delivery API listening on port ${PORT}`);
   });
 }
