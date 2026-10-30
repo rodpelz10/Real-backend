@@ -24,7 +24,7 @@ const configuredOrigins = (process.env.CLIENT_ORIGIN || "")
 
 const allowedOrigins = new Set(configuredOrigins);
 if (!isProduction) {
-  allowedOrigins.add("http://localhost:5173");
+  allowedOrigins.add("https://cravesit.vercel.app/");
 }
 
 if (isProduction && allowedOrigins.size === 0) {
